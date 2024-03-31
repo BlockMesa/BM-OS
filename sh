@@ -14,7 +14,7 @@ while true do
 	term.setTextColor(colors.white)
 	term.write("there_is_no_user_yet@cc:/>")
 	local command = read()
-	local success, err = pcall(print,command)
+	local success, err = pcall(interpret,command)
 	if not success then
 		--print(err)
 		print("Illegal command: "..command..".")
