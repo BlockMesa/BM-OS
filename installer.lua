@@ -14,9 +14,9 @@ local baseUrl = "https://raw.githubusercontent.com/BlockMesa/BM-BIOS/main/"
 print("BM-UNIX WILL NOW BE INSTALLED.")
 fs.makeDir("/home")
 fs.makeDir("/bin")
-fs.makeDir("/sbin")
+fs.makeDir("/sbin")https://raw.githubusercontent.com/BlockMesa/BM-UNIX/main/installer.lua
 
 for i,v in pairs(files) do
-    shell.run("wget "..baseurl..v.." "..v)
+    shell.run("wget "..baseUrl..v.." "..v)
 end
 print("Installation complete!")
