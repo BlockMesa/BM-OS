@@ -28,6 +28,14 @@ if not fs.exists("/etc/packages.d/packages.json") then
             bootloader = {
                 packageId = "bootloader",
                 version = ""
+            },
+            shell = {
+                packageId = "shell",
+                version = ""
+            },
+            package = {
+                packageId = "package",
+                version = ""
             }
         }
     }))
