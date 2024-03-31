@@ -6,6 +6,7 @@ local files = {
     "bin/ls.lua",
     "bin/mkdir.lua",
     "bin/shutdown.lua",
+    "bin/package.lua",
 
     --SBIN
     "sbin/kernel.lua"
