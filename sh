@@ -15,7 +15,6 @@ while true do
 	local command = read()
 	local success, err = pcall(interpret,command)
 	if not success then
-		--print(err)
-		print("Illegal command: "..command..".")
+		print(err)
 	end
 end
