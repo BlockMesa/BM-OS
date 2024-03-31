@@ -20,6 +20,7 @@ while true do
  	term.write("@cc")
 	term.setTextColour(colours.green)
 	term.write(" ~ >")
+ 	term.setTextColor(colors.white)
 	local command = read()
 	local success, err = pcall(interpret,command)
 	if not success then
