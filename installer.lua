@@ -1,0 +1,5 @@
+print("BM-UNIX WILL NOW BE INSTALLED.")
+shell.run("wget https://raw.githubusercontent.com/BlockMesa/BM-UNIX/main/bios.lua startup.lua")
+shell.run("wget https://raw.githubusercontent.com/BlockMesa/BM-UNIX/main/.BOOT")
+shell.run("wget https://raw.githubusercontent.com/BlockMesa/BM-UNIX/main/sh")
+print("Installation complete!")
