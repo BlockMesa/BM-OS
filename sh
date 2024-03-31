@@ -6,8 +6,9 @@ term.write(versionString)
 term.setCursorPos(1,3)
 _G.os.version = function() return versionString end
 function interpret(command)
-		if command:sub(1, 4) == "echo" then print(command:sub(6))
-		else if command:sub(1, 3) == "lua" then load("return "..command:sub(5))() end end
+		if command:sub(1, 4) == "echo" then print(command:sub(6)) end
+		if command:sub(1, 3) == "lua" then load("return "..command:sub(5))() end
+		print("You ran: "..command)
 end
 while true do
 	term.setCursorBlink(true)
