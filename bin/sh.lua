@@ -1,7 +1,7 @@
 local version = "0.01"
+local versionString = "BM-UNIX version "..version
 term.clear()
 term.setCursorPos(1,1)
-print(versionString)
 term.setCursorPos(1,3)
 _G.os.version = function() return versionString end
 --Not taken directly from BM-DOS
