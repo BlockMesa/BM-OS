@@ -21,6 +21,6 @@ end
 for i,v in pairs(b.files) do
     shell.run("wget "..baseUrl..v.." "..v)
 end
-shell.run("wget"..c.packages.bios.assetBase.."/bios.lua startup.lua")
+shell.run("wget "..c.packages.bios.assetBase.."/bios.lua startup.lua")
 print("Installation complete!")
 os.reboot()
