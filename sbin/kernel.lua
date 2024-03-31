@@ -27,7 +27,20 @@ kernel = {
 	currentUser = function()
 		return "user"
 	end,
+	sudo = function(env,program,...)
+		--in the future this will let programs access protected files mode
+		--in the meantime file protection is off
+	end,
 }
+local protectDir
+function protectDir(dir)
+	for i,v in pairs(fs.list(dir)) do
+		if fs.isDir(dir..v) then
+			protectDir(dir..v.."/")
+		end
+		bios.protect(bios.resolvePath(dir..v))
+	end
+end
 _G.kernel = kernel
 bios.fixColorScheme()
 if not fs.exists("/etc") then
@@ -52,6 +65,10 @@ end
 if not fs.exists("/usr/etc") then
 	fs.makeDir("/usr/etc")
 end
+protectDir("/bin/")
+protectDir("/sbin/")
+protectDir("/usr/")
+protectDir("/lib/")
 if not fs.exists("/etc/hostname") then
 	print("Host name not set!")
 	term.write("Please enter a hostname: ")
