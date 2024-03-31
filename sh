@@ -6,8 +6,7 @@ term.write(versionString)
 term.setCursorPos(1,3)
 _G.os.version = function() return versionString end
 function interpret(command)
-		if command:sub(1, 4) == "echo" then print(command:sub(6))
-  		else os.run(_ENV, command) end
+		if command:sub(1, 4) == "echo" then print(command:sub(6)) else shell.run(command) end
 end
 while true do
 	term.setCursorBlink(true)
