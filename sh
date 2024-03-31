@@ -8,7 +8,7 @@ _G.os.version = function() return versionString end
 function interpret(command)
 		if command:sub(1, 4) == "echo" then print(command:sub(6)) end
 		if command:sub(1, 3) == "lua" then load("return "..command:sub(5))() end
-		print("You ran: "..command)
+		print("You ran: "..command:sub(1, 4))
 end
 while true do
 	term.setCursorBlink(true)
