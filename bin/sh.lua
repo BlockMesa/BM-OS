@@ -32,6 +32,8 @@ local romPrograms = {
 
 	--aliases
 	dir = "/bin/ls.lua",
+	mv = "/bin/move.lua",
+	cp = "/bin/copy.lua",
 }
 
 local interpret
