@@ -20,6 +20,14 @@ if not fs.exists("/etc/packages.d/packages.json") then
             base = {
                 packageId = "base",
                 version = ""
+            },
+            kernel = {
+                packageId = "kernel",
+                version = ""
+            },
+            bootloader = {
+                packageId = "bootloader",
+                version = ""
             }
         }
     }))
@@ -42,7 +50,7 @@ file.close()
 local updated = meta.updated
 local installed = meta.installed
 
-local metadata = 'https://raw.githubusercontent.com/BlockMesa/packages/main/meta.json'
+local metadata = 'https://notbronwyn.neocities.org/blockmesa/meta.json'
 local function updatePackage(pack)
     local info = installed[pack]
     if info then
