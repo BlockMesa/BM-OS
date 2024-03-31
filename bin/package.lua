@@ -83,6 +83,7 @@ local function installPackage(pack)
         print("Did you mean: package update?")
     else
         if packageList.packages[pack] then
+            local baseUrl = packageList.packages[pack].assetBase
             print("Installing package "..pack)
             for i,v in pairs(packageList.packages[pack].files) do
                 local url = v
