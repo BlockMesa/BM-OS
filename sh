@@ -7,7 +7,7 @@ term.setCursorPos(1,3)
 _G.os.version = function() return versionString end
 function interpret(command)
 		if command:sub(1, 4) == "echo" then print(command:sub(6))
-		elseif command:sub(1, 3) == "lua" then loadstring(command:sub(5)) end
+		else if command:sub(1, 3) == "lua" then loadstring(command:sub(5)) end end
 end
 while true do
 	term.setCursorBlink(true)
