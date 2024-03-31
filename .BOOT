@@ -1,9 +1,9 @@
 
---bios.protect("/.boot")
---bios.protect(bios.getBootedDrive()..".boot")
+bios.fixColorScheme()
+bios.protect("/.boot")
 term.clear()
 term.setCursorPos(1,1)
-term.write("Starting BM-UNIX...")
+term.write("BM-UNIX BOOTLOADER")
 term.setCursorPos(1,3)
 if not fs.find(bios.getBootedDrive()) then
 	print("ERROR LOADING BOOT DEVICE!") --how does this happen

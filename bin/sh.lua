@@ -80,12 +80,13 @@ function interpret(command)
 	local args = removeFirstIndex(splitcommand)
 	local name = splitString(splitcommand[1],"%P")
 	local progName = splitcommand[1]
+	--removed /sbin from this as it isnt in a normal user's path
 	if romPrograms[string.lower(progName)] then
 		program = romPrograms[string.lower(progName)]
 	elseif kernel.isProgramInPath(kernel.getBootedDrive().."bin/",progName) then
 		program = kernel.isProgramInPath(kernel.getBootedDrive().."bin/",progName)
-	elseif kernel.isProgramInPath(kernel.getBootedDrive().."sbin/",progName) then
-		program = kernel.isProgramInPath(kernel.getBootedDrive().."sbin/",progName)
+	elseif kernel.isProgramInPath(kernel.getBootedDrive().."usr/bin/",progName) then
+		program = kernel.isProgramInPath(kernel.getBootedDrive().."usr/bin/",progName)
 	elseif name[2] or not fs.exists(kernel.getDir()..progName..".lua") then
 		program = kernel.getDir()..progName
 	else
@@ -110,10 +111,13 @@ if not fs.exists(kernel.getBootedDrive().."home") then
 	fs.makeDir(kernel.getBootedDrive().."home")
 end
 kernel.setDir(kernel.getBootedDrive().."home/")
+local rootColor = colors.red
+local userColor = colors.green
+local isRoot = false
 while true do
 	term.setCursorBlink(true)
-	term.setTextColor(colors.red)
- 	term.write("root")
+	term.setTextColor(isRoot and rootColor or userColor)
+ 	term.write("user") --TODO: add changeable names
 	term.setTextColor(colors.white)
  	term.write("@"..kernel.hostname())
 	term.setTextColour(colours.green)

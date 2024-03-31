@@ -21,8 +21,27 @@ kernel = {
 }
 _G.kernel = kernel
 bios.fixColorScheme()
-if not fs.exists("etc") then
+if not fs.exists("/etc") then
 	fs.makeDir("/etc")
+end
+if not fs.exists("/usr") then
+	fs.makeDir("/usr")
+end
+if not fs.exists("/lib") then
+	fs.makeDir("/lib")
+end
+
+if not fs.exists("/usr/bin") then
+	fs.makeDir("/usr/bin")
+end
+if not fs.exists("/usr/lib") then
+	fs.makeDir("/usr/lib")
+end
+if not fs.exists("/usr/bin") then
+	fs.makeDir("/usr/bin")
+end
+if not fs.exists("/usr/etc") then
+	fs.makeDir("/usr/etc")
 end
 if not fs.exists("/etc/hostname") then
 	print("Host name not set!")
