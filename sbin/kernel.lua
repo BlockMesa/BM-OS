@@ -1,4 +1,7 @@
 local hostname = "bm"
+local rootColor = colors.red
+local userColor = colors.green
+local isRoot = false
 kernel = {
 	setDir = bios.setDir,
 	getDir = bios.getDir,
@@ -17,7 +20,13 @@ kernel = {
 	end,
 	hostname = function()
 		return hostname
-	end
+	end,
+	currentUserColor = function()
+		return isRoot and rootColor or userColor
+	end,
+	currentUser = function()
+		return "user"
+	end,
 }
 _G.kernel = kernel
 bios.fixColorScheme()

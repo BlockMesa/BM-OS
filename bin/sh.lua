@@ -111,13 +111,11 @@ if not fs.exists("/home") then
 	fs.makeDir("/home")
 end
 kernel.setDir("/home/")
-local rootColor = colors.red
-local userColor = colors.green
-local isRoot = false
+
 while true do
 	term.setCursorBlink(true)
-	term.setTextColor(isRoot and rootColor or userColor)
- 	term.write("user") --TODO: add changeable names
+	term.setTextColor(kernel.currentUserColor())
+ 	term.write(kernel.currentUser())
 	term.setTextColor(colors.white)
  	term.write("@"..kernel.hostname())
 	term.setTextColour(colours.green)
