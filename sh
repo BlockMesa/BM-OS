@@ -21,6 +21,7 @@ while true do
 	term.setTextColour(colours.green)
 	term.write(" ~ >")
  	term.setTextColor(colors.white)
+  	term.write("") -- beloved hack
 	local command = read()
 	local success, err = pcall(interpret,command)
 	if not success then
