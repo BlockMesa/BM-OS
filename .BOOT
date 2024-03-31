@@ -9,7 +9,7 @@ if not fs.find(bios.getBootedDrive()) then
 	print("ERROR LOADING BOOT DEVICE!") --how does this happen
 	while true do os.sleep() end
 end
-local success, response = pcall(os.run,{bios=bios},bios.getBootedDrive().."sh")
+local success, response = pcall(os.run,_ENV,bios.getBootedDrive().."sh")
 if not success then
 	while true 
 		do os.sleep() 
