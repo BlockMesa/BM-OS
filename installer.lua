@@ -18,7 +18,7 @@ fs.makeDir("/bin")
 fs.makeDir("/sbin")
 
 for i,v in pairs(files) do
-    shell.run("wget "..baseurl..v.." "..v)
+    shell.run("wget "..baseUrl..v.." "..v)
 end
 shell.run("wget https://raw.githubusercontent.com/BlockMesa/BM-BIOS/main/bios.lua startup.lua")
 print("Installation complete!")
