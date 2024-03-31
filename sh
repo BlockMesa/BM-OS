@@ -6,7 +6,7 @@ term.write(versionString)
 term.setCursorPos(1,3)
 _G.os.version = function() return versionString end
 interpret = function(command)
-		if command:sub(1, 4) == "echo" then print(command:sub(5)) end
+		if command:sub(1, 4) == "echo" then print(command:sub(5))
   		else shell.run(command) end
 end
 while true do
