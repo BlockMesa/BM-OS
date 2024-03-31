@@ -1,3 +1,4 @@
+print("yeehaw")
 bios.protect("/.boot")
 bios.protect(bios.getBootedDrive()..".boot")
 term.clear()
