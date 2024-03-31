@@ -1,4 +1,5 @@
 local files = {
+    ".BOOT", --dont forget this lol
     --BIN
     "bin/sh.lua",
     "bin/cat.lua",
