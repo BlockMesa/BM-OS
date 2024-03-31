@@ -12,7 +12,7 @@ _G.os.version = function() return versionString end
 while true do
 	term.setCursorBlink(true)
 	term.setTextColor(colors.white)
-	term.write("there_is_no_user_yet@cc/>")
+	term.write("there_is_no_user_yet@cc:/>")
 	local command = read()
 	local success, err = pcall(print,command)
 	if not success then
