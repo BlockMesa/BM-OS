@@ -59,4 +59,4 @@ end
 local file = fs.open("/etc/hostname", "r")
 hostname = file.readAll()
 file.close()
-os.run({require=bios.require},bios.getBootedDrive().."bin/sh.lua")
+os.run({require=bios.require},"/bin/sh.lua")

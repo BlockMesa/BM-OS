@@ -1,5 +1,5 @@
-local version = "0.01"
-local versionString = "BM-UNIX version "..version
+local version = "0.1"
+local versionString = "BM-OS "..version
 term.clear()
 term.setCursorPos(1,1)
 _G.os.version = function() return versionString end
@@ -61,10 +61,10 @@ shell = { --bare minimum to get some programs to run, more functions to be added
 	resolve = function(progName)
 		local program = progName
 		local name = splitString(progName,"%P")
-		if kernel.isProgramInPath(kernel.getBootedDrive().."bin/",progName) then
-			program = kernel.isProgramInPath(kernel.getBootedDrive().."bin/",progName)
-		elseif kernel.isProgramInPath(kernel.getBootedDrive().."sbin/",progName) then
-			program = kernel.isProgramInPath(kernel.getBootedDrive().."sbin/",progName)
+		if kernel.isProgramInPath("/bin/",progName) then
+			program = kernel.isProgramInPath("/bin/",progName)
+		elseif kernel.isProgramInPath("/usr/bin/",progName) then
+			program = kernel.isProgramInPath("/usr/bin/",progName)
 		elseif name[2] or not fs.exists(kernel.getDir()..progName..".lua") then
 			program = kernel.getDir()..progName
 		else
@@ -83,10 +83,10 @@ function interpret(command)
 	--removed /sbin from this as it isnt in a normal user's path
 	if romPrograms[string.lower(progName)] then
 		program = romPrograms[string.lower(progName)]
-	elseif kernel.isProgramInPath(kernel.getBootedDrive().."bin/",progName) then
-		program = kernel.isProgramInPath(kernel.getBootedDrive().."bin/",progName)
-	elseif kernel.isProgramInPath(kernel.getBootedDrive().."usr/bin/",progName) then
-		program = kernel.isProgramInPath(kernel.getBootedDrive().."usr/bin/",progName)
+	elseif kernel.isProgramInPath("/bin/",progName) then
+		program = kernel.isProgramInPath("/bin/",progName)
+	elseif kernel.isProgramInPath("/usr/bin/",progName) then
+		program = kernel.isProgramInPath("/usr/bin/",progName)
 	elseif name[2] or not fs.exists(kernel.getDir()..progName..".lua") then
 		program = kernel.getDir()..progName
 	else
@@ -107,10 +107,10 @@ function interpret(command)
 		print("File not found!")
 	end
 end
-if not fs.exists(kernel.getBootedDrive().."home") then
-	fs.makeDir(kernel.getBootedDrive().."home")
+if not fs.exists("/home") then
+	fs.makeDir("/home")
 end
-kernel.setDir(kernel.getBootedDrive().."home/")
+kernel.setDir("/home/")
 local rootColor = colors.red
 local userColor = colors.green
 local isRoot = false
