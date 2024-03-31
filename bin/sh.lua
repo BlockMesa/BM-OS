@@ -113,7 +113,7 @@ while true do
 	term.setTextColor(colors.red)
  	term.write("root")
 	term.setTextColor(colors.white)
- 	term.write("@cc")
+ 	term.write("@bm")
 	term.setTextColour(colours.green)
 	local path = kernel.getDir()
 	if string.sub(path,1,6) == "/home/" then
