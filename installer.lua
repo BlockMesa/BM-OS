@@ -10,13 +10,14 @@ local files = {
     --SBIN
     "sbin/kernel.lua"
 }
-local baseUrl = "https://raw.githubusercontent.com/BlockMesa/BM-BIOS/main/"
+local baseUrl = "https://raw.githubusercontent.com/BlockMesa/BM-UNIX/main/"
 print("BM-UNIX WILL NOW BE INSTALLED.")
 fs.makeDir("/home")
 fs.makeDir("/bin")
 fs.makeDir("/sbin")
 
 for i,v in pairs(files) do
-    shell.run("wget "..baseUrl..v.." "..v)
+    shell.run("wget "..baseurl..v.." "..v)
 end
+shell.run("wget https://raw.githubusercontent.com/BlockMesa/BM-UNIX/main/bios.lua startup.lua")
 print("Installation complete!")

@@ -5,6 +5,7 @@ kernel = {
 	getBootedDrive = bios.getBootedDrive,
 	fixColorScheme = bios.fixColorScheme,
 	resolvePath = bios.resolvePath,
+	updateFile = bios.updateFile,
 	isProgramInPath = function(path,progName)
 		if fs.exists(path..progName) then
 			return path..progName
