@@ -16,22 +16,40 @@ print("BM-OS WILL NOW BE INSTALLED.")
 fs.makeDir("/home")
 fs.makeDir("/bin")
 fs.makeDir("/sbin")
+fs.makeDir("/etc")
+fs.makeDir("/usr")
+fs.makeDir("/lib")
+fs.makeDir("/usr/bin")
+fs.makeDir("/usr/lib")
+fs.makeDir("/usr/bin")
+fs.makeDir("/usr/etc")
 
+local function installFile(url,file)
+    local result, reason = http.get({url = url, binary = true}) --make names better
+    if not result then
+        print(("Failed to update %s from %s (%s)"):format(file, url, reason)) --include more detail
+        return
+    end
+    a1 = fsOpen(file,"wb")
+    a1.write(result.readAll())
+    a1.close()
+    result.close()
+end
 for i,v in pairs(b1.files) do
-    shell.run("wget "..baseUrl1..v.." "..v)
+    installFile(baseUrl1..v,v)
 end
 for i,v in pairs(b2.files) do
-    shell.run("wget "..baseUrl2..v.." "..v)
+    installFile(baseUrl2..v,v)
 end
 for i,v in pairs(b3.files) do
-    shell.run("wget "..baseUrl3..v.." "..v)
+    installFile(baseUrl3..v,v)
 end
 for i,v in pairs(b4.files) do
-    shell.run("wget "..baseUrl4..v.." "..v)
+    installFile(baseUrl4..v,v)
 end
 for i,v in pairs(b.files) do
-    shell.run("wget "..baseUrl..v.." "..v)
+    installFile(baseUrl..v,v)
 end
-shell.run("wget "..c.packages.bios.assetBase.."/bios.lua startup.lua")
+installFile(c.packages.bios.assetBase.."/bios.lua","startup.lua")
 print("Installation complete!")
 os.reboot()
