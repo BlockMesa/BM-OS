@@ -35,21 +35,26 @@ local function installFile(url,file)
     a1.close()
     result.close()
 end
+print("Installing kernel")
 for i,v in pairs(b1.files) do
     installFile(baseUrl1..v,v)
 end
+print("Installing bootloader")
 for i,v in pairs(b2.files) do
     installFile(baseUrl2..v,v)
 end
+print("Installing shell")
 for i,v in pairs(b3.files) do
     installFile(baseUrl3..v,v)
 end
+print("Installing package manager")
 for i,v in pairs(b4.files) do
     installFile(baseUrl4..v,v)
 end
+print("Installing base commands")
 for i,v in pairs(b.files) do
     installFile(baseUrl..v,v)
 end
-installFile(c.packages.bios.assetBase.."/bios.lua","startup.lua")
+installFile(c.packages.bios.assetBase.."bios.lua","startup.lua")
 print("Installation complete!")
 os.reboot()
