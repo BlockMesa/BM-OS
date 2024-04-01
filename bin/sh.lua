@@ -1,3 +1,8 @@
+if shell then
+	print("Nested shells detected!")
+	print("Exiting...")
+	return 
+end
 local version = "0.1"
 local versionString = "BM-OS "..version
 term.clear()
@@ -38,9 +43,10 @@ local romPrograms = {
 
 local makeRequire = dofile("rom/modules/main/cc/require.lua").make
 local interpret
+local runProgram
+local parsePath
 local runningProgram = ""
-local shell
-shell = { --bare minimum to get some programs to run, more functions to be added when i feel like it
+local shell = {
 	run = function(...)
 		local args = {...}
 		local command = ""
@@ -54,26 +60,18 @@ shell = { --bare minimum to get some programs to run, more functions to be added
 		end
 		interpret(command)
 	end,
-	execute = function(...) return fakeApis["shell"]["run"](...) end,
-	exit = function(...) return end,
+	execute = function(progName,...) 
+		local program = parsePath(progName)
+		runProgram(progName,program,...)
+		return 
+	 end,
+	exit = function(...) return end, --no
 	dir = kernel.getDir,
 	setDir = kernel.setDir,
-	path = function() return ".:/rom/programs:/rom/programs/http" end,
+	path = function() return ".:/rom/programs:/rom/programs/http:/bin:/usr/bin" end,
 	setPath = function(...) return end,
 	resolve = function(progName)
-		progName = progName
-		local program = progName
-		local name = splitString(progName,"%P")
-		if kernel.isProgramInPath("/bin/",progName) then
-			program = kernel.isProgramInPath("/bin/",progName)
-		elseif kernel.isProgramInPath("/usr/bin/",progName) then
-			program = kernel.isProgramInPath("/usr/bin/",progName)
-		elseif name[2] or not fs.exists(kernel.getDir()..progName..".lua") then
-			program = kernel.getDir()..progName
-		else
-			program = kernel.getDir()..progName..".lua"
-		end
-		return program
+		return parsePath(progName)
 	end,
 	getRunningProgram = function()
 		return runningProgram
@@ -86,13 +84,9 @@ local rednet = setmetatable({},{
 		return function(...) end
 	end,
 })
-function interpret(command)
-	if command == "" then return end
+function parsePath(progName)
+	local name = splitString(progName,"%P")
 	local program = ""
-	local splitcommand = splitString(command,"%S")
-	local args = removeFirstIndex(splitcommand)
-	local name = splitString(splitcommand[1],"%P")
-	local progName = splitcommand[1]
 	--removed /sbin from this as it isnt in a normal user's path
 	if romPrograms[string.lower(progName)] then
 		program = romPrograms[string.lower(progName)]
@@ -100,25 +94,41 @@ function interpret(command)
 		program = kernel.isProgramInPath("/bin/",progName)
 	elseif kernel.isProgramInPath("/usr/bin/",progName) then
 		program = kernel.isProgramInPath("/usr/bin/",progName)
+	elseif string.sub(progName,1,1) == "/" then -- if you are trying to use absolute paths you probably know exact filenames
+		program = kernel.resolvePath(progName)
 	elseif name[2] or not fs.exists(kernel.getDir()..progName..".lua") then
-		program = kernel.getDir()..progName
+		program = kernel.resolvePath(kernel.getDir()..progName)
 	else
-		program = kernel.getDir()..progName..".lua"
+		program = kernel.resolvePath(kernel.getDir()..progName..".lua")
 	end
+	return program
+end
+function runProgram(name,program,...)
+	if name == nil then
+		name = program
+	end
+	local args = {...}
+	args[0] = name
+	local fakeGlobals = {shell=shell, arg=args,rednet=rednet}
+	fakeGlobals.require, fakeGlobals.package = makeRequire(fakeGlobals,fs.getDir(program))
+	_G.os.pullEvent = os.pullEventOld
+	runningProgram = program
+	local success, response = pcall(os.run,fakeGlobals,program,table.unpack(args))
+	runningProgram = ""
+	kernel.fixColorScheme()
+	_G.os.pullEvent = os.pullEventRaw
+	if not success then
+		print(response)
+	end
+end
+function interpret(command)
+	if command == "" then return end
+	local splitcommand = splitString(command,"%S")
+	local args = removeFirstIndex(splitcommand)
+	local progName = splitcommand[1]
+	local program = parsePath(progName)
 	if fs.exists(program) then
-		local args1 = args
-		args1[0] = progName
-		local fakeGlobals = {shell=shell, arg=args1,rednet=rednet}
-		fakeGlobals.require, fakeGlobals.package = makeRequire(fakeGlobals,fs.getDir(program))
-		_G.os.pullEvent = os.pullEventOld
-		runningProgram = program
-		local success, response = pcall(os.run,fakeGlobals,program,table.unpack(args))
-		runningProgram = ""
-		kernel.fixColorScheme()
-		_G.os.pullEvent = os.pullEventRaw
-		if not success then
-			print(response)
-		end
+		runProgram(progName,program,table.unpack(args))
 	else
 		print("File not found!")
 	end
