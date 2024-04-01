@@ -30,7 +30,7 @@ local function installFile(url,file)
         print(("Failed to update %s from %s (%s)"):format(file, url, reason)) --include more detail
         return
     end
-    a1 = fsOpen(file,"wb")
+    a1 = fs.open(file,"wb")
     a1.write(result.readAll())
     a1.close()
     result.close()
