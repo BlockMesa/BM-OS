@@ -76,12 +76,13 @@ local function updatePackage(pack)
                 kernel.updateFile(file,baseUrl..url)
             end
             info.version = packageList.packages[pack].version
+            return true
         else
-            print("No update needed!")
+            return false
         end
     else
         printError("Package not installed")
-        return
+        return false
     end
 end
 local function installPackage(pack)
@@ -121,8 +122,15 @@ end
 packageList = makeTable(http.readAll())
 http.close()
 if arg[1] == "update" then
+    local hasUpdated = false
     for i,v in pairs(installed) do
-        updatePackage(i)
+        local a = updatePackage(i)
+        if a then
+            hasUpdated = true
+        end
+    end
+    if not hasUpdated then
+        print("No updates avaliable!")
     end
 elseif arg[1] == "install" then
     if not arg[2] then
