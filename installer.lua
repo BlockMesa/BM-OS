@@ -1,3 +1,6 @@
+local makeJson = textutils.serializeJSON
+local makeTable = textutils.unserializeJSON
+
 local a = http.get('https://notbronwyn.neocities.org/blockmesa/meta.json')
 local c = textutils.unserializeJSON(a.readAll())
 local b = c.packages.base
@@ -23,6 +26,38 @@ fs.makeDir("/usr/bin")
 fs.makeDir("/usr/lib")
 fs.makeDir("/usr/bin")
 fs.makeDir("/usr/etc")
+
+local file = fs.open("/etc/packages.d/packages.json","w")
+file.write(makeJson({
+    updated = "",
+    installed = {
+        bios = {
+            packageId = "bios",
+            version = c.packages.bios.version,
+        },
+        base = {
+            packageId = "base",
+            version = b.version,
+        },
+        kernel = {
+            packageId = "kernel",
+            version = b1.version,
+        },
+        bootloader = {
+            packageId = "bootloader",
+            version = b2.version,
+        },
+        shell = {
+            packageId = "shell",
+            version = b3.version,
+        },
+        package = {
+            packageId = "package",
+            version = b4.version,
+        }
+    }
+}))
+file.close()
 
 local function installFile(url,file)
     local result, reason = http.get({url = url, binary = true}) --make names better
