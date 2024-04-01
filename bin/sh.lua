@@ -77,13 +77,6 @@ local shell = {
 		return runningProgram
 	end,
 }
-local rednet = setmetatable({},{
-	__metatable = {},
-	__index = function(...)
-		printError("Rednet is unsupported")
-		return function(...) end
-	end,
-})
 function parsePath(progName)
 	local name = splitString(progName,"%P")
 	local program = ""
@@ -109,7 +102,7 @@ function runProgram(name,program,...)
 	end
 	local args = {...}
 	args[0] = name
-	local fakeGlobals = {shell=shell, arg=args,rednet=rednet}
+	local fakeGlobals = {shell=shell, arg=args}
 	fakeGlobals.require, fakeGlobals.package = makeRequire(fakeGlobals,fs.getDir(program))
 	_G.os.pullEvent = os.pullEventOld
 	runningProgram = program

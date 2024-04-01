@@ -82,6 +82,13 @@ if not fs.exists("/etc/hostname") then
 	end
 	file.close()
 end
+_G.rednet = setmetatable({},{
+	__metatable = {},
+	__index = function(...)
+		printError("Rednet is unsupported")
+		return function(...) end
+	end,
+})
 local file = fs.open("/etc/hostname", "r")
 hostname = file.readAll()
 file.close()
