@@ -36,7 +36,9 @@ local romPrograms = {
 	cp = "/bin/copy.lua",
 }
 
+local makeRequire = dofile("rom/modules/main/cc/require.lua").make
 local interpret
+local runningProgram = ""
 local shell
 shell = { --bare minimum to get some programs to run, more functions to be added when i feel like it
 	run = function(...)
@@ -59,6 +61,7 @@ shell = { --bare minimum to get some programs to run, more functions to be added
 	path = function() return ".:/rom/programs:/rom/programs/http" end,
 	setPath = function(...) return end,
 	resolve = function(progName)
+		progName = progName
 		local program = progName
 		local name = splitString(progName,"%P")
 		if kernel.isProgramInPath("/bin/",progName) then
@@ -72,7 +75,17 @@ shell = { --bare minimum to get some programs to run, more functions to be added
 		end
 		return program
 	end,
+	getRunningProgram = function()
+		return runningProgram
+	end,
 }
+local rednet = setmetatable({},{
+	__metatable = {},
+	__index = function(...)
+		printError("Rednet is unsupported")
+		return function(...) end
+	end,
+})
 function interpret(command)
 	if command == "" then return end
 	local program = ""
@@ -95,9 +108,12 @@ function interpret(command)
 	if fs.exists(program) then
 		local args1 = args
 		args1[0] = progName
-		local fakeGlobals = {shell=shell,arg=args1,require=_ENV.require}
+		local fakeGlobals = {shell=shell, arg=args1,rednet=rednet}
+		fakeGlobals.require, fakeGlobals.package = makeRequire(fakeGlobals,fs.getDir(program))
 		_G.os.pullEvent = os.pullEventOld
+		runningProgram = program
 		local success, response = pcall(os.run,fakeGlobals,program,table.unpack(args))
+		runningProgram = ""
 		kernel.fixColorScheme()
 		_G.os.pullEvent = os.pullEventRaw
 		if not success then
