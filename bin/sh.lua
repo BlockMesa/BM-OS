@@ -130,7 +130,14 @@ if not fs.exists("/home") then
 	fs.makeDir("/home")
 end
 kernel.setDir("/home/")
-
+local file = fs.open("/home/.shrc", "r")
+local shrc_code = file.readAll() or "print(\"no .shrc detected\")"
+shrc_code.close()
+local success, err = pcall(load(shrc_code))
+	if not success then
+		print("SHRC ERROR: "..err)
+	end
+print(contents)
 while true do
 	term.setCursorBlink(true)
 	term.setTextColor(kernel.currentUserColor())
