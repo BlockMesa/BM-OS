@@ -1,0 +1,7 @@
+term.write("BM-OS LOGIN")
+term.write("\nUSERNAME:")
+local user = read()
+term.write("\nPASSWORD:")
+local password = read("*")
+kernel.login(user, password)
+os.run({},"/bin/sh.lua")
