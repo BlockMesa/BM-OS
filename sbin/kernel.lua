@@ -36,6 +36,7 @@ kernel = {
 		-- passwords arent made yet
 		-- so we just login without any thought, and return true since it probably did it successfully
 		userAccount = name
+		isRoot = (userAccount == "root")
 		return true
 	end
 }
