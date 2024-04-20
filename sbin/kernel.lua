@@ -100,4 +100,4 @@ _G.rednet = setmetatable({},{
 local file = fs.open("/etc/hostname", "r")
 hostname = file.readAll()
 file.close()
-os.run({},"/bin/sh.lua")
+os.run({},"/bin/login.lua")
