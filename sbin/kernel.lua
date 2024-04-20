@@ -2,6 +2,7 @@ local hostname = "bm"
 local rootColor = colors.red
 local userColor = colors.green
 local isRoot = false
+local userAccount = "user"
 kernel = {
 	setDir = bios.setDir,
 	getDir = bios.getDir,
@@ -25,12 +26,17 @@ kernel = {
 		return isRoot and rootColor or userColor
 	end,
 	currentUser = function()
-		return "user"
+		return userAccount
 	end,
 	sudo = function(env,program,...)
 		--in the future this will let programs access protected files mode
 		--in the meantime file protection is off
 	end,
+	login = function(name, password)
+		-- passwords arent made yet
+		-- so we just login without any thought, and return true since it probably did it successfully
+		userAccount = name
+		return true
 }
 local protectDir
 function protectDir(dir)
