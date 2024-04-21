@@ -130,14 +130,21 @@ if not fs.exists("/home") then
 	fs.makeDir("/home")
 end
 kernel.setDir("/home/")
-local file = fs.open("/home/.shrc", "r")
-local shrc_code = file.readAll() or "print(\"no .shrc detected\")"
-shrc_code.close()
-local success, err = pcall(load(shrc_code))
-	if not success then
-		print("SHRC ERROR: "..err)
+if not fs.exists("/home/.shrc") then
+	--No .shrc found!
+	local a = fs.open("/home/.shrc", "w")
+	a.write('echo '..versionString)
+	a.close()
+end
+local a,b = pcall(function()
+	for line in io.lines("/home/.shrc") do
+		local success, err = pcall(interpret,line)
+		if not success then
+			print(err)
+		end
 	end
-print(contents)
+end)
+
 while true do
 	term.setCursorBlink(true)
 	term.setTextColor(kernel.currentUserColor())
