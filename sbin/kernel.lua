@@ -35,6 +35,9 @@ kernel = {
 	login = function(name, password)
 		-- passwords arent made yet
 		-- so we just login without any thought, and return true since it probably did it successfully
+		if not fs.exists("/home/"..name) then
+			fs.makeDir("/home/"..name)
+		end
 		userAccount = name
 		isRoot = (userAccount == "root")
 		return true
