@@ -153,8 +153,8 @@ while true do
  	term.write("@"..kernel.hostname())
 	term.setTextColour(colours.green)
 	local path = kernel.getDir()
-	if string.sub(path,1,6+#kernel.currentUser()) == "/home/"..kernel.currentUser() then
-		path = "~"..string.sub(path,6+#kernel.currentUser(),string.len(path)-1)
+	if string.sub(path,1,6+len(kernel.currentUser())) == "/home/"..kernel.currentUser() then
+		path = "~"..string.sub(path,6+len(kernel.currentUser()),string.len(path)-1)
 	end
 	term.write(" "..path.." >")
  	term.setTextColor(colors.white)
