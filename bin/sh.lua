@@ -154,7 +154,7 @@ while true do
 	term.setTextColour(colours.green)
 	local path = kernel.getDir()
 	if string.sub(path,1,6+#kernel.currentUser()) == "/home/"..kernel.currentUser() then
-		path = "~"..string.sub(path,6+#kernel.currentUser(),string.len(path)-1)
+		path = "~"..string.sub(path,7+#kernel.currentUser(),string.len(path)-1)
 	end
 	term.write(" "..path.." >")
  	term.setTextColor(colors.white)
