@@ -130,6 +130,8 @@ if not fs.exists("/home") then
 	fs.makeDir("/home")
 end
 kernel.setDir("/home/")
+if fs.exists("/home/"..kernel.currentUser()) then
+	kernel.setDir("/home/"..kernel.currentUser())
 if not fs.exists("/home/.shrc") then
 	--No .shrc found!
 	local a = fs.open("/home/.shrc", "w")
