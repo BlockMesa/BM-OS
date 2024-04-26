@@ -1,9 +1,6 @@
 local makeJson = textutils.serializeJSON
 local makeTable = textutils.unserializeJSON
 
-if not arg[1] then
-    print("Usage: package [update or install]")
-end
 --verify the files exist
 if not fs.exists("/etc/packages.d/") then
     fs.makeDir("/etc/packages.d/")
