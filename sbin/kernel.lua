@@ -38,11 +38,11 @@ kernel = {
 		if not fs.exists("/home/"..name) then
 			fs.makeDir("/home/"..name)
 		end
-    		if not (name:match("^[a-zA-Z0-9_]+$")) then
+    		if (name:match("^[a-zA-Z0-9_]+$")) then
         		userAccount = name
 		end
 		isRoot = (userAccount == "root")
-		return true
+		return (name:match("^[a-zA-Z0-9_]+$"))
 	end
 }
 local protectDir
