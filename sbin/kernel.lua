@@ -26,7 +26,7 @@ kernel = {
 		return isRoot and rootColor or userColor
 	end,
 	currentUser = function()
-		return userAccount
+		return userAccount or "no_user"
 	end,
 	sudo = function(env,program,...)
 		--in the future this will let programs access protected files mode
@@ -38,7 +38,9 @@ kernel = {
 		if not fs.exists("/home/"..name) then
 			fs.makeDir("/home/"..name)
 		end
-		userAccount = name
+    		if not (name:match("^[a-zA-Z0-9_]+$")) then
+        		userAccount = name
+		else end
 		isRoot = (userAccount == "root")
 		return true
 	end
