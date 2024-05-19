@@ -26,7 +26,7 @@ kernel = {
 		return isRoot and rootColor or userColor
 	end,
 	currentUser = function()
-		return userAccount or "no_user"
+		return userAccount or "root"
 	end,
 	sudo = function(env,program,...)
 		--in the future this will let programs access protected files mode
@@ -40,7 +40,7 @@ kernel = {
 		end
     		if not (name:match("^[a-zA-Z0-9_]+$")) then
         		userAccount = name
-		else end
+		end
 		isRoot = (userAccount == "root")
 		return true
 	end
