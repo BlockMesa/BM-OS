@@ -81,12 +81,12 @@ function parsePath(progName)
 	local name = splitString(progName,"%P")
 	local program = ""
 	--removed /sbin from this as it isnt in a normal user's path
-	if romPrograms[string.lower(progName)] then
-		program = romPrograms[string.lower(progName)]
-	elseif kernel.isProgramInPath("/bin/",progName) then
+	if kernel.isProgramInPath("/bin/",progName) then
 		program = kernel.isProgramInPath("/bin/",progName)
 	elseif kernel.isProgramInPath("/usr/bin/",progName) then
 		program = kernel.isProgramInPath("/usr/bin/",progName)
+	elseif romPrograms[string.lower(progName)] then --move it down so we can add custom versions of ROM programs
+		program = romPrograms[string.lower(progName)]
 	elseif string.sub(progName,1,1) == "/" then -- if you are trying to use absolute paths you probably know exact filenames
 		program = kernel.resolvePath(progName)
 	elseif name[2] or not fs.exists(kernel.getDir()..progName..".lua") then
