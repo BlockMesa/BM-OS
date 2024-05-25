@@ -43,6 +43,9 @@ kernel = {
 		end
 		isRoot = (userAccount == "root")
 		return (name:match("^[a-zA-Z0-9_]+$"))
+	end,
+	home = function()
+		return "/home/"..userAccount.."/"
 	end
 }
 local protectDir
