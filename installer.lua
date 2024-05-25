@@ -90,6 +90,7 @@ print("Installing base commands")
 for i,v in pairs(b.files) do
     installFile(baseUrl..v,v)
 end
-installFile(c.packages.bios.assetBase.."bios.lua","startup.lua")
+installFile(c.packages.bios.assetBase..".BIOS","startup.lua")
+installFile(c.packages.bios.assetBase.."startup.lua","startup.lua")
 print("Installation complete!")
 os.reboot()
