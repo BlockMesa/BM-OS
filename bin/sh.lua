@@ -41,7 +41,7 @@ local romPrograms = {
 	cp = "/bin/copy.lua",
 }
 
-local makeRequire = dofile("rom/modules/main/cc/require.lua").make
+local makeRequire = (compat and compat.isCapy64) and compat.makeRequire or dofile("rom/modules/main/cc/require.lua").make
 local interpret
 local runProgram
 local parsePath
