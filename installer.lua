@@ -1,7 +1,7 @@
 local makeJson = textutils.serializeJSON
 local makeTable = textutils.unserializeJSON
 
-local a = http.get('https://notbronwyn.neocities.org/blockmesa/meta.json')
+local a = http.get('https://windclan.neocities.org/blockmesa/meta.json')
 local c = textutils.unserializeJSON(a.readAll())
 local b = c.packages.base
 local b1 = c.packages.kernel
