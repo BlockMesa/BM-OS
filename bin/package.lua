@@ -58,7 +58,7 @@ file.close()
 local updated = meta.updated
 local installed = meta.installed
 
-local metadata = 'https://notbronwyn.neocities.org/blockmesa/meta.json'
+local metadata = 'https://windclan.neocities.org/blockmesa/meta.json'
 local function updatePackage(pack)
     local info = installed[pack]
     if info then
