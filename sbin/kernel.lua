@@ -3,6 +3,24 @@ local rootColor = colors.red
 local userColor = colors.green
 local isRoot = false
 local userAccount = "user"
+---prevent tampering
+local oldGlobal = _G
+local oldset = rawset
+function oldGlobal.rawset(tab,...)
+	if tab ~= _G then
+		return oldset(tab,...)
+	end
+end
+local newGlobal = setmetatable({},{
+	__index = oldGlobal,
+	__newindex = function(table, index, value)
+		return
+	end,
+	__metatable = {}
+})
+_G = newGlobal
+--------------------
+
 kernel = {
 	setDir = bios.setDir,
 	getDir = bios.getDir,
@@ -57,7 +75,7 @@ function protectDir(dir)
 		bios.protect(bios.resolvePath(dir..v))
 	end
 end
-_G.kernel = kernel
+oldGlobal.kernel = kernel
 bios.fixColorScheme()
 if not fs.exists("/etc") then
 	fs.makeDir("/etc")
@@ -98,7 +116,7 @@ if not fs.exists("/etc/hostname") then
 	end
 	file.close()
 end
-_G.rednet = setmetatable({},{
+oldGlobal.rednet = setmetatable({},{
 	__metatable = {},
 	__index = function(...)
 		printError("Rednet is unsupported")
