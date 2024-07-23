@@ -1,5 +1,8 @@
 local oldErr = printError
 local oldPull = os.pullEvent
+local oldPullRaw = os.pullEventRaw
+_G.os.pullEventOld = oldPull
+_G.os.pullEvent = os.pullEventRaw
 local function boot()
 	term.clear()
 	term.setCursorPos(1,1)
@@ -18,7 +21,7 @@ local function boot()
 end
 local function overwrite()
     _G.printError = oldErr
-    _G.os.pullEvent = oldPull
+    _G.os.pullEvent = oldPullRaw
     _G['rednet'] = nil
 	local success, err = pcall(boot)
 	if not success then
