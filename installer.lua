@@ -27,7 +27,9 @@ local meta = {
             version = b.version,
 			requires = b.requires
         },
-    }
+    },
+	conflicts = {},
+	provided = {}
 }
 
 local function installFile(file,url)
@@ -43,6 +45,7 @@ local function installFile(file,url)
 end
 for i,v in pairs(b.requires) do
 	print("Installing package "..v)
+	local files = {}
 	for i,v1 in pairs(c.packages[v].files) do
 		local url = v1
 		local file = ""
@@ -51,13 +54,22 @@ for i,v in pairs(b.requires) do
 		else
 			file = v1
 		end
+		table.insert(files,file)
 		installFile(file,c.packages[v].assetBase..url)
 	end
 	meta.installed[v] = {
         packageId = v,
         version = c.packages[v].version,
-		requires = c.packages[v].requires
+		requires = c.packages[v].requires,
+		files = files
     }
+	meta.conflicts[v] = c.packages[v].conflicts or {}
+	meta.provided[v] = {v}
+	if c.packages[v].provides then
+		for _,v1 in pairs(c.packages[v].provides) do
+			table.insert(provided[v],v1)
+		end
+	end
 end
 
 local file = fs.open("/etc/packages.d/packages.json","w")
