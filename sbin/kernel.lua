@@ -1,16 +1,26 @@
-local hostname = "bm"
+local args = {...}
+local argsStr = ""
+local quietBoot = false
+for i,v in pairs(args) do
+	if i ~= 1 then
+		argsStr = argsStr.." "
+	end
+	argsStr = argsStr..v
+	if v == "quiet" then
+		quietBoot = true
+	end
+end
+print("Generic kernel version 0.2")
+print("Command line: "..argsStr)
+local hostname = ""
 local rootColor = colors.red
 local userColor = colors.green
 local isRoot = false
-local userAccount = "user"
+local userAccount = ""
 ---prevent tampering
 local oldGlobal = _G
 local oldset = rawset
-function oldGlobal.rawset(tab,...)
-	if tab ~= _G then
-		return oldset(tab,...)
-	end
-end
+
 local newGlobal = setmetatable({},{
 	__index = oldGlobal,
 	__newindex = function(table, index, value)
@@ -20,7 +30,6 @@ local newGlobal = setmetatable({},{
 })
 _G = newGlobal
 --------------------
-
 kernel = {
 	setDir = bios.setDir,
 	getDir = bios.getDir,
@@ -33,6 +42,8 @@ kernel = {
 			return path..progName
 		elseif fs.exists(path..progName..".lua") then
 			return path..progName..".lua"
+		elseif fs.exists(path..progName..".why") then
+			return path..progName..".why"
 		else
 			return false
 		end
@@ -64,6 +75,11 @@ kernel = {
 	end,
 	home = function()
 		return "/home/"..userAccount.."/"
+	end,
+	debug = function(...)
+		if not quietBoot then
+			print(...)
+		end
 	end
 }
 local protectDir
@@ -75,7 +91,34 @@ function protectDir(dir)
 		bios.protect(bios.resolvePath(dir..v))
 	end
 end
+
 oldGlobal.kernel = kernel
+function oldGlobal.rawset(tab,...)
+	if tab ~= _G then
+		return oldset(tab,...)
+	end
+end
+local oldRun = os.run
+function oldGlobal.os.run(env,file,...)
+	--resolving this here since its required for files to work
+	local a = fs.open(file,"r")
+	if a then
+		local firstLine = a.readLine(false)
+		a.close()
+		if firstLine:sub(1,2) == "#!" then
+			local interpreter = firstLine:sub(3)
+			if kernel.isProgramInPath("",interpreter) then
+				interpreter = kernel.isProgramInPath("",interpreter)
+			end
+			oldRun(env,interpreter,file,...)
+		else
+			oldRun(env,file,...)
+		end
+	else
+		print(file)
+	end
+end
+
 bios.fixColorScheme()
 if not fs.exists("/etc") then
 	fs.makeDir("/etc")
@@ -126,4 +169,4 @@ oldGlobal.rednet = setmetatable({},{
 local file = fs.open("/etc/hostname", "r")
 hostname = file.readAll()
 file.close()
-os.run({},"/bin/login.lua")
+os.run({},kernel.isProgramInPath("/sbin/","init"))

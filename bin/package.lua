@@ -13,28 +13,8 @@ if not fs.exists("/etc/packages.d/packages.json") then
     file.write(makeJson({
         updated = "",
         installed = {
-            bios = {
-                packageId = "bios",
-                version = ""
-            },
             base = {
                 packageId = "base",
-                version = ""
-            },
-            kernel = {
-                packageId = "kernel",
-                version = ""
-            },
-            bootloader = {
-                packageId = "bootloader",
-                version = ""
-            },
-            shell = {
-                packageId = "shell",
-                version = ""
-            },
-            package = {
-                packageId = "package",
                 version = ""
             }
         }
@@ -59,32 +39,6 @@ local updated = meta.updated
 local installed = meta.installed
 
 local metadata = 'https://windclan.neocities.org/blockmesa/meta.json'
-local function updatePackage(pack)
-    local info = installed[pack]
-    if info then
-        if packageList.packages[pack].version ~= info.version then
-            local baseUrl = packageList.packages[pack].assetBase
-            print("Updating package "..pack)
-            for i,v in pairs(packageList.packages[pack].files) do
-                local url = v
-                local file = ""
-                if type(i) == "string" then
-                    file = i
-                else
-                    file = v
-                end
-                kernel.updateFile(file,baseUrl..url)
-            end
-            info.version = packageList.packages[pack].version
-            return true
-        else
-            return false
-        end
-    else
-        printError("Package not installed")
-        return false
-    end
-end
 local function installPackage(pack)
     local info = installed[pack]
     if info then
@@ -111,6 +65,41 @@ local function installPackage(pack)
         else   
             print("Invalid package")
         end
+    end
+end
+local function updatePackage(pack)
+    local info = installed[pack]
+    if info then
+        if packageList.packages[pack].version ~= info.version then
+            local baseUrl = packageList.packages[pack].assetBase
+            print("Updating package "..pack)
+			if packageList.packages[pack].files then
+			    for i,v in pairs(packageList.packages[pack].files) do
+					local url = v
+					local file = ""
+					if type(i) == "string" then
+						file = i
+					else
+						file = v
+					end
+					kernel.updateFile(file,baseUrl..url)
+				end
+				info.version = packageList.packages[pack].version
+			end
+			if packageList.packages[pack].requires then
+				for i,v in pairs(packageList.packages[pack].requires) do
+					if not installed[v] then
+						installPackage(v)
+					end
+				end
+			end
+            return true
+        else
+            return false
+        end
+    else
+        printError("Package not installed")
+        return false
     end
 end
 print("Updating package list...")
