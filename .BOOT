@@ -8,7 +8,7 @@ if not fs.exists(bios.getBootedDrive()) then
 	print("ERROR LOADING BOOT DEVICE!") --how does this happen
 	while true do os.sleep() end
 end
-local success, response = pcall(os.run,_ENV,"/sbin/kernel.lua")
+local success, response = pcall(os.run,_ENV,"/boot/kernel.lua")
 if not success then
 	while true do
 		os.sleep() 

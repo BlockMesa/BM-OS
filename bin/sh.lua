@@ -136,7 +136,7 @@ end
 if not fs.exists(kernel.home()..".shrc") then
 	--No .shrc found!
 	local a = fs.open(kernel.home()..".shrc", "w")
-	a.write('echo '..versionString)
+	a.write('')
 	a.close()
 end
 local a,b = pcall(function()
