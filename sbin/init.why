@@ -1,4 +1,4 @@
-#!/sbin/shitty
+#!/bin/shitty
 rem This file is just a stub for now
 setvar loadmsg string Starting login system...
 setvar exec obj os.run
