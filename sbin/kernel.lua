@@ -30,13 +30,67 @@ local newGlobal = setmetatable({},{
 })
 _G = newGlobal
 --------------------
+local directory = "/"
 kernel = {
-	setDir = bios.setDir,
-	getDir = bios.getDir,
-	getBootedDrive = bios.getBootedDrive,
-	fixColorScheme = bios.fixColorScheme,
-	resolvePath = bios.resolvePath,
-	updateFile = bios.updateFile,
+	setDir = function(dir)
+		directory = dir
+	end,
+	getDir = function()
+		return directory
+	end,
+	getBootedDrive = function()
+		return _BOOTDRIVE
+	end,
+	fixColorScheme = function()
+		for i=1,15 do
+			local color = i^2
+			term.setPaletteColor(color,term.nativePaletteColor(color))
+		end
+		term.setBackgroundColor(colors.black)
+		term.setTextColor(colors.white)
+	end,
+	resolvePath = function(path)
+		local matches = {}
+		for i in path:gmatch("[^/]+") do
+			table.insert(matches,i)
+		end
+		local result1 = {}
+		local lastIndex = 1
+		for i,v in pairs(matches) do
+			if v ~= "." then
+				if v== ".." then
+					result1[lastIndex] = nil
+					lastIndex = lastIndex-1
+				else
+					lastIndex = lastIndex + 1
+					result1[lastIndex] = v
+				end
+			end
+		end
+		local result = {}
+		for i,v in pairs(result1) do
+			table.insert(result,v)
+		end
+		local final = "/"
+		for i,v in pairs(result) do
+			if i ~= 1 then
+				final = final .. "/"
+			end
+			final = final..v
+		end
+		return final
+	end,
+	updateFile = function(file,url)
+		local result, reason = http.get({url = url, binary = true}) --make names better
+		if not result then
+			print(("Failed to update %s from %s (%s)"):format(file, url, reason)) --include more detail
+			return
+		end
+		local a1 = fs.open(file,"wb")
+		a1.write(result.readAll())
+		a1.close()
+		result.close()
+	end,
 	isProgramInPath = function(path,progName)
 		if fs.exists(path..progName) then
 			return path..progName
@@ -82,15 +136,6 @@ kernel = {
 		end
 	end
 }
-local protectDir
-function protectDir(dir)
-	for i,v in pairs(fs.list(dir)) do
-		if fs.isDir(dir..v) then
-			protectDir(dir..v.."/")
-		end
-		bios.protect(bios.resolvePath(dir..v))
-	end
-end
 
 oldGlobal.kernel = kernel
 function oldGlobal.rawset(tab,...)
@@ -119,7 +164,7 @@ function oldGlobal.os.run(env,file,...)
 	end
 end
 
-bios.fixColorScheme()
+kernel.fixColorScheme()
 if not fs.exists("/etc") then
 	fs.makeDir("/etc")
 end
@@ -142,10 +187,6 @@ end
 if not fs.exists("/usr/etc") then
 	fs.makeDir("/usr/etc")
 end
-protectDir("/bin/")
-protectDir("/sbin/")
-protectDir("/usr/")
-protectDir("/lib/")
 if not fs.exists("/etc/hostname") then
 	print("Host name not set!")
 	term.write("Please enter a hostname: ")
