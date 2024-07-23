@@ -48,19 +48,29 @@ local function installPackage(pack)
         if packageList.packages[pack] then
             local baseUrl = packageList.packages[pack].assetBase
             print("Installing package "..pack)
-            for i,v in pairs(packageList.packages[pack].files) do
-                local url = v
-                local file = ""
-                if type(i) == "string" then
-                    file = i
-                else
-                    file = v
-                end
-                kernel.updateFile(file,baseUrl..url)
-            end
+			if packageList.packages[pack].files then
+			    for i,v in pairs(packageList.packages[pack].files) do
+					local url = v
+					local file = ""
+					if type(i) == "string" then
+						file = i
+					else
+						file = v
+					end
+					kernel.updateFile(file,baseUrl..url)
+				end
+			end
+			if packageList.packages[pack].requires then
+				for i,v in pairs(packageList.packages[pack].requires) do
+					if not installed[v] then
+						installPackage(v)
+					end
+				end
+			end
             meta.installed[pack] = {
                 packageId = pack,
-                version = packageList.packages[pack].version
+                version = packageList.packages[pack].version,
+				requires = packageList.packages[pack].requires
             }
         else   
             print("Invalid package")
@@ -84,7 +94,6 @@ local function updatePackage(pack)
 					end
 					kernel.updateFile(file,baseUrl..url)
 				end
-				info.version = packageList.packages[pack].version
 			end
 			if packageList.packages[pack].requires then
 				for i,v in pairs(packageList.packages[pack].requires) do
@@ -93,6 +102,7 @@ local function updatePackage(pack)
 					end
 				end
 			end
+			info.version = packageList.packages[pack].version
             return true
         else
             return false
