@@ -61,7 +61,7 @@ startfunc main
 	add attempts one attempts
 endfunc
 
-out loadmsg
+rem out loadmsg
 out
 out startmsg hostname
 repeatUntil main success true
