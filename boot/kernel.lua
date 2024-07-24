@@ -189,33 +189,24 @@ function oldGlobal.os.run(env,file,...)
 	end
 end
 
-kernel.fixColorScheme()
-if not fs.exists("/etc") then
-	fs.makeDir("/etc")
-end
-if not fs.exists("/usr") then
-	fs.makeDir("/usr")
-end
-if not fs.exists("/lib") then
-	fs.makeDir("/lib")
+local function makeDir(dir)
+	if not fs.exists(kernel.getBootedDrive()..dir) then
+		fs.makeDir(kernel.getBootedDrive()..dir)
+	end
 end
 
-if not fs.exists("/usr/bin") then
-	fs.makeDir("/usr/bin")
-end
-if not fs.exists("/usr/lib") then
-	fs.makeDir("/usr/lib")
-end
-if not fs.exists("/usr/bin") then
-	fs.makeDir("/usr/bin")
-end
-if not fs.exists("/usr/etc") then
-	fs.makeDir("/usr/etc")
-end
-if not fs.exists("/etc/hostname") then
+kernel.fixColorScheme()
+makeDir("/etc")
+makeDir("/usr")
+makeDir("/lib")
+makeDir("/usr/bin")
+makeDir("/usr/lib")
+makeDir("/usr/bin")
+makeDir("/usr/etc")
+if not fs.exists(kernel.getBootedDrive().."/etc/hostname") then
 	print("Host name not set!")
 	term.write("Please enter a hostname: ")
-	local file = fs.open("/etc/hostname","w")
+	local file = fs.open(kernel.getBootedDrive().."/etc/hostname","w")
 	while true do
 		local a = read()
 		if a ~= "" then
@@ -232,7 +223,7 @@ oldGlobal.rednet = setmetatable({},{
 		return function(...) end
 	end,
 })
-local file = fs.open("/etc/hostname", "r")
+local file = fs.open(kernel.getBootedDrive().."/etc/hostname", "r")
 hostname = file.readAll()
 file.close()
-os.run({},kernel.isProgramInPath(resolvePath(parentDir.."../sbin/").."/","init"))
+os.run({},kernel.isProgramInPath(kernel.getBootedDrive().."sbin/","init"))
