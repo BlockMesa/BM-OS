@@ -4,7 +4,8 @@ local oldPullRaw = os.pullEventRaw
 _G.os.pullEventOld = oldPull
 _G.os.pullEvent = os.pullEventRaw
 local function boot()
-	os.run({},"/boot/loader.lua")
+	local parentDir = debug.getinfo(1).source:match("@?(.*/)") --https://stackoverflow.com/a/35072122 (getting current file location)
+	os.run({},parentDir.."boot/loader.lua")
 end
 local function overwrite()
     _G.printError = oldErr

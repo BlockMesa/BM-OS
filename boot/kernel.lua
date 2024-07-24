@@ -29,7 +29,44 @@ local newGlobal = setmetatable({},{
 	__metatable = {}
 })
 _G = newGlobal
---------------------
+
+-- this figures out where the hell we are
+local parentDir = debug.getinfo(1).source:match("@?(.*/)") --https://stackoverflow.com/a/35072122 (getting current file location)
+-- basically we need to be able to make portable disks for a possible future installer
+-- the current init system won't support that since its meant for specialized applications
+-- not generic desktop usage since that would never be used
+
+function resolvePath(path)
+	local matches = {}
+	for i in path:gmatch("[^/]+") do
+		table.insert(matches,i)
+	end
+	local result1 = {}
+	local lastIndex = 1
+	for i,v in pairs(matches) do
+		if v ~= "." then
+			if v== ".." then
+				result1[lastIndex] = nil
+				lastIndex = lastIndex-1
+			else
+				lastIndex = lastIndex + 1
+				result1[lastIndex] = v
+			end
+		end
+	end
+	local result = {}
+	for i,v in pairs(result1) do
+		table.insert(result,v)
+	end
+	local final = "/"
+	for i,v in pairs(result) do
+		if i ~= 1 then
+			final = final .. "/"
+		end
+		final = final..v
+	end
+	return final
+end
 local directory = "/"
 kernel = {
 	setDir = function(dir)
@@ -39,47 +76,21 @@ kernel = {
 		return directory
 	end,
 	getBootedDrive = function()
-		return _BOOTDRIVE
+		local drive = resolvePath(parentDir.."..").."/"
+		if drive == "//" then
+			drive = "/"
+		end
+		return drive
 	end,
 	fixColorScheme = function()
-		for i=1,15 do
-			local color = i^2
+		for i=0,15 do
+			local color = 2^i
 			term.setPaletteColor(color,term.nativePaletteColor(color))
 		end
 		term.setBackgroundColor(colors.black)
 		term.setTextColor(colors.white)
 	end,
-	resolvePath = function(path)
-		local matches = {}
-		for i in path:gmatch("[^/]+") do
-			table.insert(matches,i)
-		end
-		local result1 = {}
-		local lastIndex = 1
-		for i,v in pairs(matches) do
-			if v ~= "." then
-				if v== ".." then
-					result1[lastIndex] = nil
-					lastIndex = lastIndex-1
-				else
-					lastIndex = lastIndex + 1
-					result1[lastIndex] = v
-				end
-			end
-		end
-		local result = {}
-		for i,v in pairs(result1) do
-			table.insert(result,v)
-		end
-		local final = "/"
-		for i,v in pairs(result) do
-			if i ~= 1 then
-				final = final .. "/"
-			end
-			final = final..v
-		end
-		return final
-	end,
+	resolvePath = resolvePath,
 	updateFile = function(file,url)
 		local result, reason = http.get({url = url, binary = true}) --make names better
 		if not result then
@@ -210,4 +221,4 @@ oldGlobal.rednet = setmetatable({},{
 local file = fs.open("/etc/hostname", "r")
 hostname = file.readAll()
 file.close()
-os.run({},kernel.isProgramInPath("/sbin/","init"))
+os.run({},kernel.isProgramInPath(resolvePath(parentDir.."../sbin/").."/","init"))
