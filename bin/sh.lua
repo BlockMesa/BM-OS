@@ -133,12 +133,13 @@ kernel.setDir("/home/")
 if fs.exists(kernel.home()) then
 	kernel.setDir(kernel.home())
 end
-if not fs.exists(kernel.home()..".shrc") then
+--[[if not fs.exists(kernel.home()..".shrc") then
 	--No .shrc found!
 	local a = fs.open(kernel.home()..".shrc", "w")
 	a.write('')
 	a.close()
-end
+end]]
+-- that drives me crazy
 local a,b = pcall(function()
 	for line in io.lines(kernel.home().."/.shrc") do
 		local success, err = pcall(interpret,line)
@@ -156,7 +157,7 @@ while true do
  	term.write("@"..kernel.hostname())
 	term.setTextColour(colours.green)
 	local path = kernel.getDir()
-	if string.sub(path,1,6+#kernel.currentUser()) == kernel.home() then
+	if string.sub(path,1,7+#kernel.currentUser()) == kernel.home() then
 		path = "~"..string.sub(path,8+#kernel.currentUser(),string.len(path)-1)
 	end
 	term.write(" "..path.." >")

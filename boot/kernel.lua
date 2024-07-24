@@ -15,8 +15,13 @@ print("Command line: "..argsStr)
 local hostname = ""
 local rootColor = colors.red
 local userColor = colors.green
-local isRoot = false
-local userAccount = ""
+
+-- by default everything is root, not great but unless we make FS protection it doesn't matter
+-- since this is CC we don't really need to make user protection and don't need to figure out multi user at this moment
+-- we may in the future but you can't really run things in the background so eh
+local isRoot = true
+local userAccount = "root" 
+
 ---prevent tampering
 local oldGlobal = _G
 local oldset = rawset
@@ -67,6 +72,9 @@ function resolvePath(path)
 	end
 	return final
 end
+local accounts = { -- not final, just for now
+	root = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8", --password, literally
+}
 local directory = "/"
 kernel = {
 	setDir = function(dir)
@@ -127,16 +135,22 @@ kernel = {
 		--in the meantime file protection is off
 	end,
 	login = function(name, password)
-		-- passwords arent made yet
-		-- so we just login without any thought, and return true since it probably did it successfully
-		if not fs.exists("/home/"..name) then
-			fs.makeDir("/home/"..name)
+		-- i don't want to have to deal with the kernel needing an SHA256 library
+		-- the login system handles hashing it (i dont want to)
+		if accounts[name] and accounts[name] == password then
+			if not fs.exists("/home/"..name) then
+				fs.makeDir("/home/"..name)
+			end
+			if (name:match("^[a-zA-Z0-9_]+$")) then
+				userAccount = name
+			else
+				return false
+			end
+			isRoot = (userAccount == "root")
+			return true
+		else
+			return false
 		end
-    		if (name:match("^[a-zA-Z0-9_]+$")) then
-        		userAccount = name
-		end
-		isRoot = (userAccount == "root")
-		return (name:match("^[a-zA-Z0-9_]+$"))
 	end,
 	home = function()
 		return "/home/"..userAccount.."/"
