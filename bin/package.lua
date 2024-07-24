@@ -162,9 +162,7 @@ local function updatePackage(pack)
     local info = installed[pack]
     if info then
         if packageList.packages[pack].version ~= info.version then
-            uninstallPackage(pack)
-			installPackage(pack)
-            return true
+            return true, pack
         else
             return false
         end
@@ -186,12 +184,20 @@ end
 if arg[1] == "update" then
 	updateList()
     local hasUpdated = false
+	local updates = {}
     for i,v in pairs(installed) do
-        local a = updatePackage(i)
+        local a,pack = updatePackage(i)
         if a then
+			table.insert(updates,pack)
             hasUpdated = true
         end
     end
+	for i,v in pairs(updates) do
+		uninstallPackage(pack)
+	end
+	for i,v in pairs(updates) do
+		installPackage(pack)
+	end
     if not hasUpdated then
         print("No updates avaliable!")
     end
