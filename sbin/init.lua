@@ -23,7 +23,7 @@ local function main()
 		term.write("Username: ")
 		local username = read()
 		term.write("Password: ")
-		local password = sha256(read())
+		local password = sha256(read("*"))
 		success = user.login(username,password)
 		attempts = attempts + 1
 	end
