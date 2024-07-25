@@ -1,7 +1,7 @@
 local sha256 = dofile("/lib/sha256.lua")
 local success = false
 
-print("Login on device "..kernel.hostname())
+print("Login on device "..os.hostname())
 local attempts = 0
 while not success do
 	if attempts > 0 then
@@ -17,7 +17,7 @@ while not success do
 	local user = read()
 	term.write("Password:")
 	local password = read("*")
-	success = kernel.login(user, sha256(password))
+	success = user.login(user, sha256(password))
 	attempts = attempts + 1
 end
 os.run({},"/bin/sh.lua")

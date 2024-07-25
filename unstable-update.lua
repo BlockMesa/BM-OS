@@ -69,7 +69,7 @@ local function updatePackage(pack)
             else
                 file = v
             end
-            kernel.updateFile(file,baseUrl..url)
+            fs.updateFile(file,baseUrl..url)
         end
         info.version = "unstable"
         return true
@@ -95,7 +95,7 @@ local function installPackage(pack)
                 else
                     file = v
                 end
-                kernel.updateFile(file,baseUrl..url)
+                fs.updateFile(file,baseUrl..url)
             end
             meta.installed[pack] = {
                 packageId = pack,

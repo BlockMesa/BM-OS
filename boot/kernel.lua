@@ -1,4 +1,31 @@
 local args = {...}
+local version = "0.3"
+local name = "Generic kernel"
+local output = {
+	debug = function(...)
+		if not quietBoot then
+			print("[DEBUG]",...)
+		end
+	end,
+	info = function(...)
+		print("[INFO]",...)
+	end,
+	warn = function(...)
+		local oldPrintColor
+		if term.isColor() then
+			oldPrintColor = term.getTextColor()
+			term.setTextColor(colors.yellow)
+		end
+		print("[WARNING]",...)
+		if term.isColor() then
+			term.setTextColor(oldPrintColor)
+		end
+	end,
+	error = function(...)
+		printError("[ERROR]",...)
+	end,
+}
+
 local argsStr = ""
 local quietBoot = false
 for i,v in pairs(args) do
@@ -10,8 +37,8 @@ for i,v in pairs(args) do
 		quietBoot = true
 	end
 end
-print("Generic kernel version 0.2")
-print("Command line: "..argsStr)
+output.info(name.." version "..version)
+output.info("Command line: "..argsStr)
 local hostname = ""
 local rootColor = colors.red
 local userColor = colors.green
@@ -76,64 +103,7 @@ local accounts = { -- not final, just for now
 	root = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8", --password, literally
 }
 local directory = "/"
-kernel = {
-	setDir = function(dir)
-		directory = dir
-	end,
-	getDir = function()
-		return directory
-	end,
-	getBootedDrive = function()
-		local drive = resolvePath(parentDir.."..").."/"
-		if drive == "//" then
-			drive = "/"
-		end
-		return drive
-	end,
-	fixColorScheme = function()
-		for i=0,15 do
-			local color = 2^i
-			term.setPaletteColor(color,term.nativePaletteColor(color))
-		end
-		term.setBackgroundColor(colors.black)
-		term.setTextColor(colors.white)
-	end,
-	resolvePath = resolvePath,
-	updateFile = function(file,url)
-		local result, reason = http.get({url = url, binary = true}) --make names better
-		if not result then
-			print(("Failed to update %s from %s (%s)"):format(file, url, reason)) --include more detail
-			return
-		end
-		local a1 = fs.open(file,"wb")
-		a1.write(result.readAll())
-		a1.close()
-		result.close()
-	end,
-	isProgramInPath = function(path,progName)
-		if fs.exists(path..progName) then
-			return path..progName
-		elseif fs.exists(path..progName..".lua") then
-			return path..progName..".lua"
-		elseif fs.exists(path..progName..".why") then
-			return path..progName..".why"
-		else
-			return false
-		end
-	end,
-	hostname = function()
-		return hostname
-	end,
-	currentUserColor = function()
-		return isRoot and rootColor or userColor
-	end,
-	currentUser = function()
-		return userAccount or "root"
-	end,
-	sudo = function(env,program,...)
-		--in the future this will let programs access protected files mode
-		--in the meantime file protection is off
-	end,
+local user = {
 	login = function(name, password)
 		-- i don't want to have to deal with the kernel needing an SHA256 library
 		-- the login system handles hashing it (i dont want to)
@@ -155,18 +125,63 @@ kernel = {
 	home = function()
 		return "/home/"..userAccount.."/"
 	end,
-	debug = function(...)
-		if not quietBoot then
-			print(...)
-		end
-	end
+	currentUser = function()
+		return userAccount or "root"
+	end,
+	currentUserColor = function()
+		return isRoot and rootColor or userColor
+	end,
 }
-
-oldGlobal.kernel = kernel
+oldGlobal.output = output
+oldGlobal.user = user
+function oldGlobal.fs.setDir(dir)
+	directory = dir
+end
+function oldGlobal.fs.getDir()
+	return directory
+end
+function oldGlobal.fs.getBootedDrive()
+	local drive = resolvePath(parentDir.."..").."/"
+	if drive == "//" then
+		drive = "/"
+	end
+	return drive
+end
+oldGlobal.fs.resolvePath = resolvePath
+function oldGlobal.fs.updateFile(file,url)
+	local result, reason = http.get({url = url, binary = true}) --make names better
+	if not result then
+		output.warn(("Failed to update %s from %s (%s)"):format(file, url, reason)) --include more detail
+		return
+	end
+	local a1 = fs.open(file,"wb")
+	a1.write(result.readAll())
+	a1.close()
+	result.close()
+end
+function oldGlobal.fs.isProgramInPath(path,progName)
+	if fs.exists(path..progName) then
+		return path..progName
+	elseif fs.exists(path..progName..".lua") then
+		return path..progName..".lua"
+	elseif fs.exists(path..progName..".why") then
+		return path..progName..".why"
+	else
+		return false
+	end
+end
 function oldGlobal.rawset(tab,...)
 	if tab ~= _G then
 		return oldset(tab,...)
 	end
+end
+function oldGlobal.term.fixColorScheme()
+	for i=0,15 do
+		local color = 2^i
+		term.setPaletteColor(color,term.nativePaletteColor(color))
+	end
+	term.setBackgroundColor(colors.black)
+	term.setTextColor(colors.white)
 end
 local oldRun = os.run
 function oldGlobal.os.run(env,file,...)
@@ -177,25 +192,30 @@ function oldGlobal.os.run(env,file,...)
 		a.close()
 		if firstLine:sub(1,2) == "#!" then
 			local interpreter = firstLine:sub(3)
-			if kernel.isProgramInPath("",interpreter) then
-				interpreter = kernel.isProgramInPath("",interpreter)
+			if fs.isProgramInPath("",interpreter) then
+				interpreter = fs.isProgramInPath("",interpreter)
 			end
 			oldRun(env,interpreter,file,...)
 		else
 			oldRun(env,file,...)
 		end
 	else
-		print(file)
+		output.info(file)
 	end
 end
-
+function oldGlobal.os.version()
+	return name.." v"..version
+end
+function oldGlobal.os.hostname()
+	return hostname
+end
 local function makeDir(dir)
-	if not fs.exists(kernel.getBootedDrive()..dir) then
-		fs.makeDir(kernel.getBootedDrive()..dir)
+	if not fs.exists(fs.getBootedDrive()..dir) then
+		fs.makeDir(fs.getBootedDrive()..dir)
 	end
 end
 
-kernel.fixColorScheme()
+term.fixColorScheme()
 makeDir("/etc")
 makeDir("/usr")
 makeDir("/lib")
@@ -203,10 +223,10 @@ makeDir("/usr/bin")
 makeDir("/usr/lib")
 makeDir("/usr/bin")
 makeDir("/usr/etc")
-if not fs.exists(kernel.getBootedDrive().."/etc/hostname") then
-	print("Host name not set!")
+if not fs.exists(fs.getBootedDrive().."/etc/hostname") then
+	output.info("Host name not set!")
 	term.write("Please enter a hostname: ")
-	local file = fs.open(kernel.getBootedDrive().."/etc/hostname","w")
+	local file = fs.open(fs.getBootedDrive().."/etc/hostname","w")
 	while true do
 		local a = read()
 		if a ~= "" then
@@ -219,11 +239,11 @@ end
 oldGlobal.rednet = setmetatable({},{
 	__metatable = {},
 	__index = function(...)
-		printError("Rednet is unsupported")
+		output.error("Rednet is unsupported")
 		return function(...) end
 	end,
 })
-local file = fs.open(kernel.getBootedDrive().."/etc/hostname", "r")
+local file = fs.open(fs.getBootedDrive().."/etc/hostname", "r")
 hostname = file.readAll()
 file.close()
-os.run({},kernel.isProgramInPath(kernel.getBootedDrive().."sbin/","init"))
+os.run({},fs.isProgramInPath(fs.getBootedDrive().."sbin/","init"))

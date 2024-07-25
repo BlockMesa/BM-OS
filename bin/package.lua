@@ -132,7 +132,7 @@ local function installPackage(pack)
 						file = v
 					end
 					table.insert(files,file)
-					kernel.updateFile(file,baseUrl..url)
+					fs.updateFile(file,baseUrl..url)
 				end
 			end
 			if packageList.packages[pack].requires then
