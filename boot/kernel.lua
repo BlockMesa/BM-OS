@@ -122,6 +122,23 @@ local user = {
 			return false
 		end
 	end,
+	createUser = function(name, password)
+		-- the program that runs createUser handles hashing
+		if isRoot then
+			if not fs.exists("/home/"..name) then
+				fs.makeDir("/home/"..name)
+			end
+			if (name:match("^[a-zA-Z0-9_]+$")) then
+				accounts[name] = password
+			else
+				return false
+			end
+			return true
+		else
+			return false
+		end
+	end,
+	chkRoot = function() return isRoot end
 	home = function()
 		return "/home/"..userAccount.."/"
 	end,
