@@ -166,6 +166,9 @@ local user = {
 			end
 			if (name:match("^[a-zA-Z0-9_]+$")) then
 				accounts[name] = password
+				local file = fs.open("/etc/passwd", "w")
+				file.writeLine(username .. ":" .. password)
+				file.close()
 			else
 				return false
 			end
@@ -174,7 +177,6 @@ local user = {
 			return false
 		end
 	end,
-	chkRoot = function() return isRoot end
 	home = function()
 		return "/home/"..userAccount.."/"
 	end,
