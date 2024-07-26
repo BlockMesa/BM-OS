@@ -11,7 +11,7 @@ local function main()
 	print("Login on device "..os.hostname())
 	while not success do
 		if attempts > 0 then
-			printError("Incorrect usrname or password")
+			printError("Incorrect username or password")
 			print("")
 		end
 		if attempts > 3 then
