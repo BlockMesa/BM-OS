@@ -5,7 +5,7 @@ print("Login on device "..os.hostname())
 local attempts = 0
 while not success do
 	if attempts > 0 then
-		printError("Incorrect usrname or password")
+		printError("Incorrect username or password")
 		print("")
 	end
 	if attempts > 3 then
