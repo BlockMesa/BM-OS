@@ -2,20 +2,12 @@ local makeJson = textutils.serializeJSON
 local makeTable = textutils.unserializeJSON
 
 local a = http.get('https://restructsblog.neocities.org/devmeta.json')
-local c = textutils.unserializeJSON(a.readAll())
+local json = a.readAll():gsub("%G","")
+local c = textutils.unserializeJSON(json)
 local b = c.packages.base
-local b1 = c.packages.kernel
-local b2 = c.packages.bootloader
-local b3 = c.packages.shell
-local b4 = c.packages.package
 
 a.close()
-local baseUrl = b.assetBase
-local baseUrl1 = b1.assetBase
-local baseUrl2 = b2.assetBase
-local baseUrl3 = b3.assetBase
-local baseUrl4 = b4.assetBase
-print("BM-OS WILL NOW BE INSTALLED.")
+print("Installing BM-OS")
 fs.makeDir("/home")
 fs.makeDir("/bin")
 fs.makeDir("/sbin")
@@ -27,39 +19,20 @@ fs.makeDir("/usr/lib")
 fs.makeDir("/usr/bin")
 fs.makeDir("/usr/etc")
 
-local file = fs.open("/etc/packages.d/packages.json","w")
-file.write(makeJson({
+local meta = {
     updated = "",
     installed = {
-        bios = {
-            packageId = "bios",
-            version = c.packages.bios.version,
-        },
         base = {
             packageId = "base",
             version = b.version,
+			requires = b.requires
         },
-        kernel = {
-            packageId = "kernel",
-            version = b1.version,
-        },
-        bootloader = {
-            packageId = "bootloader",
-            version = b2.version,
-        },
-        shell = {
-            packageId = "shell",
-            version = b3.version,
-        },
-        package = {
-            packageId = "package",
-            version = b4.version,
-        }
-    }
-}))
-file.close()
+    },
+	conflicts = {},
+	provided = {}
+}
 
-local function installFile(url,file)
+local function installFile(file,url)
     local result, reason = http.get({url = url, binary = true}) --make names better
     if not result then
         print(("Failed to update %s from %s (%s)"):format(file, url, reason)) --include more detail
@@ -70,26 +43,48 @@ local function installFile(url,file)
     a1.close()
     result.close()
 end
-print("Installing kernel")
-for i,v in pairs(b1.files) do
-    installFile(baseUrl1..v,v)
+for i,v in pairs(b.requires) do
+	print("Installing package "..v)
+	local files = {}
+	for i,v1 in pairs(c.packages[v].files) do
+		local url = v1
+		local file = ""
+		if type(i) == "string" then
+			file = i
+		else
+			file = v1
+		end
+		table.insert(files,file)
+		installFile(file,c.packages[v].assetBase..url)
+	end
+	meta.installed[v] = {
+        packageId = v,
+        version = c.packages[v].version,
+		requires = c.packages[v].requires,
+		files = files
+    }
+	meta.conflicts[v] = c.packages[v].conflicts or {}
+	meta.provided[v] = {v}
+	if c.packages[v].provides then
+		for _,v1 in pairs(c.packages[v].provides) do
+			table.insert(provided[v],v1)
+		end
+	end
 end
-print("Installing bootloader")
-for i,v in pairs(b2.files) do
-    installFile(baseUrl2..v,v)
+
+local file = fs.open("/etc/packages.d/packages.json","w")
+file.write(makeJson(meta))
+file.close()
+
+local file = fs.open("/etc/hostname", "w")
+print("Please enter a hostname")
+term.write("hostname: ")
+local a = io.read()
+if not a or a == "" then
+	a = "computer"
 end
-print("Installing shell")
-for i,v in pairs(b3.files) do
-    installFile(baseUrl3..v,v)
-end
-print("Installing package manager")
-for i,v in pairs(b4.files) do
-    installFile(baseUrl4..v,v)
-end
-print("Installing base commands")
-for i,v in pairs(b.files) do
-    installFile(baseUrl..v,v)
-end
-installFile(c.packages.bios.assetBase.."bios.lua","startup.lua")
-print("Developer Installation complete!")
+file.write(a)
+file.close()
+
+print("Installation complete!")
 os.reboot()
