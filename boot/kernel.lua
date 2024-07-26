@@ -177,6 +177,7 @@ local user = {
 			return false
 		end
 	end,
+	chkRoot = function() return isRoot end,
 	home = function()
 		return "/home/"..userAccount.."/"
 	end,
