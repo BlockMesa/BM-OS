@@ -99,9 +99,45 @@ function resolvePath(path)
 	end
 	return final
 end
-local accounts = { -- not final, just for now
+local accounts = { -- incase it goes wrong somehow
 	root = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8", --password, literally
 }
+local function loadfrompasswd()
+    if not fs.exists("/etc/passwd") then
+	output.warn("/etc/passwd does not exist, creating.")
+    	local file = fs.open("/etc/passwd", "w")
+    	file.writeLine("root:5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8") -- default
+    	file.close()
+        return false, "/etc/passwd does not exist"
+    end
+
+    local seen = {}
+    local file = fs.open("/etc/passwd", "r")
+    while true do
+        local line = file.readLine()
+        if line == nil then break end
+
+        local username, password = line:match("([^:]+):([^:]+)")
+        if username and password then
+            if not seen[username] then
+                accounts[username] = password
+                seen[username] = true
+            else
+                output.warn("Duplicate account for user: " .. username .. "with hashed password: " .. password ..", ignoring.")
+            end
+        end
+    end
+    file.close()
+    return true
+end
+--local function savetopasswd()
+--    local file = fs.open("/etc/passwd", "w")
+--    for username, password in pairs(accounts) do
+--        file.writeLine(username .. ":" .. password)
+--    end
+--    file.close()
+--end -- only use this as a example on how to write to /etc/passwd
+local success, err = loadfrompasswd() -- the accounts table is also the one in passwd by default so if the file exists but is unchanged its still the same table, if the passwd file doesnt exist then its still the default table
 local directory = "/"
 local user = {
 	login = function(name, password)
@@ -128,14 +164,17 @@ local user = {
 			if not fs.exists("/home/"..name) then
 				fs.makeDir("/home/"..name)
 			end
-			if (name:match("^[a-zA-Z0-9_]+$")) then
-				accounts[name] = password
+			if !(accounts[name]) then -- so that duplicate accounts dont happen
+				if (name:match("^[a-zA-Z0-9_]+$")) then
+					accounts[name] = password
+					fs.open("/etc/passwd", "w").writeLine(name .. ":" .. password)
+				else
+					return false
+				end
+				return true
 			else
 				return false
 			end
-			return true
-		else
-			return false
 		end
 	end,
 	chkRoot = function() return isRoot end
