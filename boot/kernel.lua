@@ -164,17 +164,14 @@ local user = {
 			if not fs.exists("/home/"..name) then
 				fs.makeDir("/home/"..name)
 			end
-			if !(accounts[name]) then -- so that duplicate accounts dont happen
-				if (name:match("^[a-zA-Z0-9_]+$")) then
-					accounts[name] = password
-					fs.open("/etc/passwd", "w").writeLine(name .. ":" .. password)
-				else
-					return false
-				end
-				return true
+			if (name:match("^[a-zA-Z0-9_]+$")) then
+				accounts[name] = password
 			else
 				return false
 			end
+			return true
+		else 
+			return false
 		end
 	end,
 	chkRoot = function() return isRoot end
