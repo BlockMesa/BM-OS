@@ -1,6 +1,6 @@
 local args = {...}
 local version = "0.3"
-local name = "BM-OS Generic kernel"
+local name = "Generic kernel"
 local output = {
 	debug = function(...)
 		if not quietBoot then
@@ -166,7 +166,7 @@ local user = {
 			end
 			if (name:match("^[a-zA-Z0-9_]+$")) then
 				accounts[name] = password
-				local file = fs.open("/etc/passwd", "w")
+				local file = fs.open("/etc/passwd", "a")
 				file.writeLine(name .. ":" .. password)
 				file.close()
 			else
